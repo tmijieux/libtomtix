@@ -1,0 +1,157 @@
+algorithme de tri d'un trés grand fichier ne pouvant etre chargé en une seule
+fois dans la mémoire centrale de la machine.
+
+j'utilise une fonction lireDebut(fichier: Fichier) qui renvoie le premier
+caractere d'un fichier sans avancer le curseur on conviendra, que si le type
+abstrait fichier(Bande) ne fournit pas cette primitive, on peut facilement
+implémenter un type abstrait interface de la façon suivante: (comme on l'a
+remarqué en TD)
+(le type basique est dénommé 'Bande' et le type interface 'Fichier')
+
+structure Fichier:
+     Bande bande;
+     Element premierElement
+     booleen fichierFini;
+debut
+
+fonction lireDebut(fichier: Fichier): Element
+debut
+	retourner fichier.premierElement;
+fin
+
+fonction lireProchain(fichier: Fichier): Element
+debut
+	tmp <- fichier.premierElement;
+	si EOF(fichier.bande)
+	alors
+		fichierFini = VRAI;
+	sinon
+		fichier.premierElement <- bandeLireProchainElement(fichier.bande);
+	fin si
+	retourner tmp;
+fin
+
+fonction finDeFichier(fichier: Fichier): booleen
+debut
+	retourne fichier.fichierFini;
+fin
+
+
+Voici l'algorithme:
+AVEC UNE FILE
+
+fonction tri(Fichier grandFichier): Fichier
+debut
+	file <- creerFilePetitFichiers(grandFichier);
+	trierPetitFichiers(file);
+	fichierTrié <- defiler(file);
+	libererFile(file);
+	retourner fichierTrié;
+fin
+
+fonction creerFilePetitFichiers(grandFichier: Fichier): File
+	file <- construireFileVide();
+	T <- construireTableau(TAILLE_MEMOIRE, 0);
+	tant que (finDeFichier(grandFichier) est FAUX)
+	faire
+		i <- 1;
+		jusqu'à (i = TAILLE_MEMOIRE ou finDeFichier(grandFichier))
+		faire	  
+			T[i] <- lireSuivant(grandFichier);
+			i <- i + 1;
+		fin jusqu'à
+		triRapide(T, i);
+		// je fourni la taille i, car la fin de Fichier peut etre
+		// atteinte avant que i = TAILLE_MEMOIRE si jamais la taille
+		// du gros fichier n'est pas un multiple de TAILLE_MEMOIRE 
+		petitFichier <- construireFichier();
+		pour k de 1 à i 
+		faire
+			ajouterFin(petitFichier, T[k]);
+		fin pour
+		enfiler(file, petitFichier);
+	fin tant que
+	detruireTableau(T);
+	retourner file
+fin
+
+procédure trierPetitFichiers(file: File)
+// effet de bord sur file
+debut
+	tant que (tailleFile(file) >= 2)
+	faire
+		fichier1 <- defiler(file);
+		fichier2 <- defiler(file);
+		fichier3 <- construireFichier();
+		jusqu'a (finDeFichier(fichier1) et finDeFichier(fichier2))
+		faire
+			si (lireDebut(fichier1) < lireDebut(fichier2))
+			alors
+				ajouterFin(fichier3, lireProchain(fichier1);
+			sinon
+				ajouterFin(fichier3, lireProchain(fichier2);
+			fin si
+		fin jusqu'a
+		enfiler(file, fichier3)
+		libererFichier(fichier1);
+		libererFichier(fichier2);
+	fin de tant que
+fin
+
+
+AVEC UN TAS
+(on supposera que le tas contient des fichiers définit comme précédement
+et qu'il classe ses éléments selon la valeur du champ 'premierElement'
+d'un fichier, le minimum étant en haut du tas)
+
+fonction tri(Fichier grandFichier): Fichier
+debut
+	tas <- creerTasPetitFichiers(grandFichier);
+	fichier <- trierPetitFichiers(tas);
+	libererTas(tas);
+	retourner fichier;
+fin
+
+fonction creerTasPetitFichiers(grandFichier: Fichier): Tas
+debut
+	tas <- construireTasVide();
+	T <- construireTableau(TAILLE_MEMOIRE, 0);
+	tant que (finDeFichier(grandFichier) est FAUX)
+	faire
+		i <- 1;
+		jusqu'à (i = TAILLE_MEMOIRE ou finDeFichier(grandFichier))
+		faire	  
+			T[i] <- lireSuivant(grandFichier);
+			i <- i + 1;
+		fin jusqu'à
+		triRapide(T, i);
+		// je fourni la taille i, car la fin de Fichier peut etre
+		// atteinte avant que i = TAILLE_MEMOIRE si jamais la taille
+		// du gros fichier n'est pas un multiple de TAILLE_MEMOIRE 
+		petitFichier <- construireFichier();
+		pour k de 1 à i 
+		faire
+			ajouterFin(petitFichier, T[k]);
+		fin pour
+		tasAjouterFichier(tas, petitFichier);
+	fin tant que
+	detruireTableau(T);
+	retourner file
+fin
+
+fonction trierPetitFichiers(tas: Tas): Fichier
+debut
+	fichierTrié <- creerFichier();
+	tant que (tailleTas(tas) > 0)
+	faire
+		petitFichier <- extraireMin(tas);
+		ajouterFin(fichierTrié, lireProchain(petitFichier));
+		si finDeFichier(petitFichier)
+		alors
+			libererFichier(petitFichier);	
+		sinon
+			tasAjouterFichier(petitFichier);
+		fin si
+	fin de tant que
+	retourner fichierTrié;
+fin
