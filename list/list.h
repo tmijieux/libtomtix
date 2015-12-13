@@ -37,4 +37,10 @@ struct list *list_copy(const struct list *l);
 void *list_to_array(const struct list *l);
 struct hash_table *list_to_hashtable(const struct list *l,
 				     const char *(*element_keyname) (void *));
+void list_each(const struct list *l, void (*fun)(void*));
+void list_each_r(const struct list *l, void (*fun)(void*, void*), void *args);
+struct list *list_map(const struct list *l, void *(*fun)(void*));
+struct list *list_map_r(const struct list *l,
+			void *(*fun)(void*, void*), void *args);
+
 #endif //LIST_H
