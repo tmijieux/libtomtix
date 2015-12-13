@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <assert.h>
 // FLAGS for list_new():
-#define LI_FREEMALLOCD (1 << 0)  // attempt to free all its elements when
-                                 // list_free() is called
+#define LI_ELEM  (1 << 1)	// null terminated initializer list
+#define LI_FREE  (1 << 2)	// second argument is a free function for elements
 // END FLAGS
 
 struct list;
@@ -23,7 +23,7 @@ struct list;
     ({ assert(sizeof typ < sizeof (void*)) ;				\
 	union { typ t; void *v}e; e.v = list_get((li), (i)); e.t;})
 
-struct list *list_new(int flags);
+struct list *list_new(int flags, ...);
 void list_free(struct list*);
 size_t list_size(const struct list*); // element count
 void * list_get(const struct list*, unsigned int i); // returns data
@@ -34,6 +34,7 @@ void list_remove(struct list*, unsigned int i);
 void list_append(struct list *list, const void *element);
 void list_append_list(struct list *l1, const struct list *l2);
 struct list *list_copy(const struct list *l);
-
-
+void *list_to_array(const struct list *l);
+struct hash_table *list_to_hashtable(const struct list *l,
+				     const char *(*element_keyname) (void *));
 #endif //LIST_H
