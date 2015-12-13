@@ -182,3 +182,32 @@ void ht_free(struct hash_table* ht)
 	free(ht);
     }
 }
+
+void ht_for_each(struct hash_table* ht,
+		 void (*fun)(const char *, void*, void*), void *args)
+{
+    if (ht) {
+	for (int i = 0; i < ht->size; ++i) {
+	    struct ht_entry *he = ht->buf[i];
+	    while (he) {
+		fun(he->key, he->data, args);
+		he = he->next;
+	    }
+	}
+    }
+}
+
+struct list* ht_to_list(const struct hash_table *ht)
+{
+    struct list *l = list_new(0);
+    if (ht) {
+	for (unsigned int i = 0; i < ht->size; ++i) {
+	    struct ht_entry *he = ht->buf[i];
+	    while (he) {
+		list_append(l, he->data);
+		he = he->next;
+	    }
+	}
+    }
+    return l;
+}
