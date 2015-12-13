@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <limits.h>
 
 #include "stack.h"
 
@@ -10,14 +11,14 @@ struct stack {
 
 size_t stack_size(const struct stack *s)
 {
-    return (size_t)s->head + 1;
+    return (size_t)(s->head + 1);
 }
 
 struct stack *stack_create(size_t buffer_size)
 {
     struct stack *stack = malloc(sizeof(*stack) +
 				 sizeof(stack->buf[0]) * buffer_size);
-    stack->head = -1;
+    stack->head = UINT_MAX;
     stack->buffer_size = buffer_size;
     return stack;
 }
