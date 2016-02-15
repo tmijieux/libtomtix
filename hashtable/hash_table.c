@@ -81,9 +81,9 @@ struct hash_table* ht_create(size_t size, int (*hash)(const char*))
     else
 	ht->hash = &default_hash;
     if (size > 0)
-	    ht->size = size;
+        ht->size = size;
     else
-	    ht->size = INITIAL_HASH_TABLE_SIZE;
+        ht->size = INITIAL_HASH_TABLE_SIZE;
     ht->buf = calloc(sizeof(*ht->buf), ht->size);
     return ht;
 }
