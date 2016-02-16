@@ -131,7 +131,7 @@ struct list *list_copy(const struct list *l)
 void *list_to_array(const struct list *l)
 {
     void **array = malloc(sizeof(*array) * l->size);
-    for (int i = 0; i < l->size; ++i)
+    for (unsigned i = 0; i < l->size; ++i)
 	array[i] = list_get(l, i);
 
     return array;
@@ -142,7 +142,7 @@ struct hash_table *list_to_hashtable(const struct list *l,
 {
     struct hash_table *ht = ht_create(2 * l->size, NULL);
 
-    for (int i = 0; i < l->size; ++i) {
+    for (unsigned i = 0; i < l->size; ++i) {
 	void *el = list_get(l, i);
 	ht_add_entry(ht, element_keyname(el), el);
     }

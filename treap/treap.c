@@ -26,7 +26,6 @@ struct treap {
     treap_compare_f compare_fun;
 
     size_t size;
-    size_t max_size;
 };
 
 static float random_priority(void)
@@ -35,12 +34,11 @@ static float random_priority(void)
     return (float) (f = sin(f));
 }
 
-struct treap *treap_create(size_t max_size, treap_compare_f compare_fun)
+struct treap *treap_create(treap_compare_f compare_fun)
 {
     struct treap *t = calloc(sizeof*t, 1);
     t->root = NULL;
     t->size = 0;
-    t->max_size = max_size;
     t->compare_fun = compare_fun;
     return t;
 }
@@ -108,7 +106,7 @@ static struct treap_node *treap_bst_insert(
         parent_->right_child = node_;                    \
     } while (0)
 
-static void treap_heap_resolve_up(struct treap *t, struct treap_node *n)
+static void treap_heap_resolve_up(struct treap_node *n)
 {
     while (n->parent != NULL && n->parent->priority > n->priority) {
         // do rotations until heap configuration is restored
@@ -121,10 +119,17 @@ static void treap_heap_resolve_up(struct treap *t, struct treap_node *n)
         }
     }
 }
+size_t treap_size(const struct treap *t)
+{
+    return t->size;
+}
 
 int treap_insert(struct treap *t, void *value)
 {
     struct treap_node *n;
+
+    ++ t->size;
+    
     if (t->root == NULL) {
         // if tree is empty just add a node at the root
         create_treap_node(t->root, value, NULL);
@@ -135,7 +140,7 @@ int treap_insert(struct treap *t, void *value)
     n = treap_bst_insert(t, t->root, value);
     if (NULL != n) { // if a new node was created
         // make rotation to restore a stable heap configuration
-        treap_heap_resolve_up(t, n);
+        treap_heap_resolve_up(n);
     }
     return -1;
 }
@@ -166,8 +171,6 @@ int treap_search(struct treap *t, void *value, struct list **ret)
     *ret = NULL;
     return -1;
 }
-
-
 
 static void treap_node_free(struct treap_node *n)
 {

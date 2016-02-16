@@ -1,0 +1,2 @@
+#!/bin/bash
+gcc main.c treap.c -I ../list/ -std=gnu99 ../list/list.c -I ../hashtable/ ../hashtable/hash_table.c -lm -Wall -Wextra 
