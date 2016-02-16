@@ -9,13 +9,9 @@
 #include "treap.h"
 
 struct treap_node {
-    bool sentinel;
-
     struct list *list;
     void *value;
-
     float priority;
-
     struct treap_node *parent;
     struct treap_node *right_child;
     struct treap_node *left_child;
@@ -24,14 +20,13 @@ struct treap_node {
 struct treap {
     struct treap_node *root;
     treap_compare_f compare_fun;
-
     size_t size;
 };
 
 static float random_priority(void)
 {
     static double f = 42.;
-    return (float) (f = sin(f));
+    return (float) sin(f++); // somewhat '~random' (uniform) distribution
 }
 
 struct treap *treap_create(treap_compare_f compare_fun)
