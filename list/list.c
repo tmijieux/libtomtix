@@ -121,6 +121,21 @@ void list_remove(struct list *list, unsigned int n)
     list->size --;
 }
 
+void list_remove_value(struct list *l, void *value)
+{
+    struct list_node *n, *next;
+    n = l->front_sentinel;
+    do {
+        next = node_next(n);
+        if (!node_is_sentinel(next) && node_get_data(next) == value) {
+            l->size--;
+            node_set_next(n, node_next(next));
+            node_free(next);
+        }
+        n = node_next(n);
+    } while (!node_is_sentinel(n));
+}
+
 struct list *list_copy(const struct list *l)
 {
     struct list *n = list_new(0);
