@@ -2,8 +2,27 @@
 #include <stdarg.h>
 
 #include "list.h"
-#include "list_node.h"
-#include <hash_table.h>
+
+struct list_node {
+    const void *data;
+    struct list_node *next;
+    int is_sentinel;
+};
+
+#define SENTINEL_NODE 1
+#define DATA_NODE     0
+
+#define node_new(da, sen)   \
+    ({ struct list_node *n = (struct list_node*) malloc(sizeof(*n));	\
+	n->data = (da);					\
+	n->is_sentinel = (sen);				\
+	n;})
+#define node_free(no)	       (free(no))
+#define node_get_next(no)      ((no)->next)
+#define node_set_next(no, ne)  ((no)->next = (ne))
+#define node_get_data(no)      ((no)->data)
+#define node_set_data(no, da)  ((no)->data = (da))
+#define node_is_sentinel(no)   ((no)->is_sentinel)
 
 struct list {
     struct list_node *front_sentinel;
@@ -129,13 +148,13 @@ void list_remove_value(struct list *l, void *value)
     struct list_node *n, *next;
     n = l->front_sentinel;
     do {
-        next = node_next(n);
+        next = node_get_next(n);
         if (!node_is_sentinel(next) && node_get_data(next) == value) {
             l->size--;
-            node_set_next(n, node_next(next));
+            node_set_next(n, node_get_next(next));
             node_free(next);
         }
-        n = node_next(n);
+        n = node_get_next(n);
     } while (!node_is_sentinel(n));
 }
 

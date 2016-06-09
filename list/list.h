@@ -3,6 +3,9 @@
 
 #include <stdlib.h>
 #include <assert.h>
+
+#include "hash_table.h"
+
 // FLAGS for list_new():
 #define LI_ELEM  (1 << 1)	// null terminated initializer list
 #define LI_FREE  (1 << 2)	// second argument is a free function for elements

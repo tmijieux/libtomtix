@@ -1,5 +1,5 @@
-#ifndef NODE_QUEUE_H
-#define NODE_QUEUE_H
+#ifndef NQUEUE_H
+#define NQUEUE_H
 
 #include <stdlib.h> // size_t
 
@@ -11,4 +11,4 @@ void *nqueue_head(struct queue *q);
 void nqueue_push(struct queue *q, void *data);
 void *nqueue_pop(struct queue *q);
 
-#endif //NODE_QUEUE_H
+#endif //NQUEUE_H
