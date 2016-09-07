@@ -1,2 +1,2 @@
 # libtomtix
-a little c utility library
+a little general purpose utility library for the C language

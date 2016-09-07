@@ -1,2 +1,0 @@
-add_executable(queue_example main.c)
-target_link_libraries(queue_example queue)
