@@ -6,8 +6,6 @@
 #include "tomtix/stack.h"
 #include "tomtix/token.h"
 
-#define STACK_SIZE 256
-
 typedef enum task_element_type_ {
     RECURSION,
     TASK,
@@ -47,8 +45,8 @@ typedef struct task_element_ {
 } task_element;
 
 task_element *element_new(int type,
-                             void (*task)(tomtix_tree*),
-                             tomtix_tree *node)
+                          void (*task)(tomtix_tree*),
+                          tomtix_tree *node)
 {
     task_element *elem = g_malloc0(sizeof(*elem));
     elem->type = type;
@@ -67,11 +65,11 @@ int main()
     // I didn't have a lexical analyser yet so
     // I have my expression hard written:
     tomtix_token tok[5] = {
-        { .type = TX_TOKEN_OPENING_PAREN },
-        { .type = TX_TOKEN_INTEGER, .l = 137 },
-        { .type = TX_TOKEN_OPERATOR, .c = '+' },
-        { .type = TX_TOKEN_INTEGER, .l = 215 },
-        { .type = TX_TOKEN_CLOSING_PAREN }
+        { .type = T_TOKEN_OPENING_PAREN },
+        { .type = T_TOKEN_INTEGER, .l = 137 },
+        { .type = T_TOKEN_OPERATOR, .c = '+' },
+        { .type = T_TOKEN_INTEGER, .l = 215 },
+        { .type = T_TOKEN_CLOSING_PAREN }
     };
     tomtix_tree *T = expr2tree(5, tok);
     tomtix_stack *S = tomtix_stack_new();
@@ -79,7 +77,7 @@ int main()
 
     while (!tomtix_stack_is_empty(S)) {
         task_element *tmp, *elem;
-        
+
         elem = tomtix_stack_pop(S);
         switch (elem->type) {
         case TASK:

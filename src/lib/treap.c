@@ -1,3 +1,22 @@
+/*
+  Copyright (C) 2016 Thomas Mijieux
+
+  This file is part of libtomtix.
+
+  libtomtix is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  libtomtix is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +39,7 @@ typedef struct treap_node_ {
 
 struct t_treap_ {
     treap_node *root;
-    t_treap_compare_function compare_fun;
+    t_compare_function compare;
     size_t size;
 };
 
@@ -31,10 +50,10 @@ static float make_priority(void)
     // somewhat '~random' (uniform) distribution
 }
 
-t_treap *t_treap_new(t_treap_compare_function compare_fun)
+t_treap *t_treap_new(t_compare_function compare)
 {
     t_treap *t = calloc(sizeof*t, 1);
-    t->compare_fun = compare_fun;
+    t->compare = compare;
     return t;
 }
 
@@ -51,7 +70,7 @@ t_treap *t_treap_new(t_treap_compare_function compare_fun)
     do {                                                        \
         if ((var_) == NULL) {                                   \
             CREATE_TREAP_NODE((var_), (value_), (parent_));     \
-            return var_;                                   \
+            return var_;                                        \
         }                                                       \
         return treap_bst_insert(t, var_, value_);               \
     } while (0)
@@ -62,7 +81,7 @@ static treap_node *
 treap_bst_insert(t_treap *t, treap_node *n, void *value)
 {
     int comp;
-    if ((comp = t->compare_fun(n->value, value)) > 0)
+    if ((comp = t->compare(n->value, value)) > 0)
         /*macro return*/
         INSERT_TREAP_NODE(n->left_child, value, n);
     else if (comp < 0)
@@ -116,7 +135,7 @@ treap_heap_resolve_up(treap_node *n)
 }
 
 size_t
-t_treap_size(const t_treap *t)
+t_treap_size(t_treap const *t)
 {
     return t->size;
 }
@@ -127,7 +146,7 @@ t_treap_insert(t_treap *t, void *value)
     treap_node *n;
 
     ++ t->size;
-    
+
     if (t->root == NULL) {
         // if tree is empty just add a node at the root
         CREATE_TREAP_NODE(t->root, value, NULL);
@@ -150,7 +169,7 @@ treap_bst_search(t_treap *t, treap_node *node, void *value)
     int comp;
     if (node == NULL) // if nobody is found
         return NULL;
-    if ((comp = t->compare_fun(node->value, value)) > 0)
+    if ((comp = t->compare(node->value, value)) > 0)
         return treap_bst_search(t, node->left_child, value);
     else if (comp < 0)
         return treap_bst_search(t, node->right_child, value);

@@ -1,7 +1,27 @@
+/*
+  Copyright (C) 2016 Thomas Mijieux
+
+  This file is part of libtomtix.
+
+  libtomtix is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  libtomtix is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdio.h>
 #include <yaml.h>
-#include <assert.h>
 #include <stdbool.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 
 #include "tomtix/error.h"
 #include "tomtix/yaml.h"
@@ -18,7 +38,7 @@ hashtable_dump_cb(gpointer key_name, gpointer field, gpointer out_stream)
 void t_yaml_dump(FILE *out, t_yaml const *yaml)
 {
     switch (yaml->type) {
-    case TX_YAML_LIST:
+    case T_YAML_LIST:
 	fprintf(out, "yaml list start:\n");
         GList *l = yaml->list;
         while (l != NULL) {
@@ -27,12 +47,12 @@ void t_yaml_dump(FILE *out, t_yaml const *yaml)
 	}
 	fprintf(out, "yaml list end\n");
 	break;
-    case TX_YAML_TABLE:
+    case T_YAML_TABLE:
 	fprintf(out, "yaml table start:\n");
 	g_hash_table_foreach(yaml->table, hashtable_dump_cb, out);
 	fprintf(out, "yaml table end\n");
 	break;
-    case TX_YAML_SCALAR:
+    case T_YAML_SCALAR:
 	fprintf(out, "%s\n", yaml->scalar);
 	break;
     }
@@ -42,10 +62,10 @@ static void
 insert_in_container(t_yaml *cont, char const *keyname, t_yaml *yaml)
 {
     switch (cont->type) {
-    case TX_YAML_TABLE:
+    case T_YAML_TABLE:
         g_hash_table_insert(cont->table, g_strdup(keyname), yaml);
         break;
-    case TX_YAML_LIST:
+    case T_YAML_LIST:
         cont->list = g_list_append(cont->list, yaml);
         break;
     default:
@@ -60,7 +80,7 @@ wrap(t_yaml_type type, void *value)
     t_yaml *yaml = malloc(sizeof*yaml);
     yaml->type = type;
     yaml->value = value;
-    if (yaml->type == TX_YAML_SCALAR)
+    if (yaml->type == T_YAML_SCALAR)
         yaml->value = strdup(value);
     return yaml;
 }
@@ -82,12 +102,12 @@ push_container(t_stack *s, t_yaml_type type,
 t_yaml*
 t_yaml_new_from_file(char const *filepath)
 {
-    FILE *f = NULL;
+    FILE *f;
     yaml_parser_t parser;
     t_yaml *yaml = NULL, *tmp;
-    t_stack *container_stack = t_stack_new();
+    t_stack *container_stack;
 
-    f = fopen(filepath, "r");
+    f = g_fopen(filepath, "r");
     if (f == NULL) {
 	t_error("%s: %s\n", filepath, strerror(errno));
 	return NULL;
@@ -100,6 +120,7 @@ t_yaml_new_from_file(char const *filepath)
 	return NULL;
     }
     yaml_parser_set_input_file(&parser, f);
+    container_stack = t_stack_new();
 
     bool done = false;
     while (!done) {
@@ -125,28 +146,28 @@ t_yaml_new_from_file(char const *filepath)
             CLEAR_STRING(keyname);
 	    break;
 	case YAML_SEQUENCE_START_EVENT:
-	    push_container(container_stack, TX_YAML_LIST, keyname, NULL);
+	    push_container(container_stack, T_YAML_LIST, keyname, NULL);
             CLEAR_STRING(keyname);
 	    break;
 	case YAML_MAPPING_START_EVENT:
             table = g_hash_table_new_full(
                 g_str_hash, g_str_equal, g_free, (GDestroyNotify)t_yaml_free);
-	    push_container(container_stack, TX_YAML_TABLE, keyname, table);
+	    push_container(container_stack, T_YAML_TABLE, keyname, table);
             CLEAR_STRING(keyname);
 	    break;
 	case YAML_SCALAR_EVENT: {
             char *value = g_strdup((char*) event.data.scalar.value);
             if (t_stack_size(container_stack) > 0) {
                 t_yaml *head = t_stack_head(container_stack);
-                if (head->type == TX_YAML_TABLE && keyname == NULL)
+                if (head->type == T_YAML_TABLE && keyname == NULL)
                     keyname = value;
                 else {
-                    tmp = wrap(TX_YAML_SCALAR, value);
+                    tmp = wrap(T_YAML_SCALAR, value);
                     insert_in_container(head, keyname, tmp);
                     CLEAR_STRING(keyname);
                 }
 	    } else { // the whole document IS a scalar:
-                yaml = wrap(TX_YAML_SCALAR, value);
+                yaml = wrap(T_YAML_SCALAR, value);
                 CLEAR_STRING(keyname);
             }
 	    break;
@@ -171,13 +192,13 @@ void t_yaml_free(t_yaml *yaml)
         return;
 
     switch (yaml->type) {
-    case TX_YAML_TABLE:
+    case T_YAML_TABLE:
         g_hash_table_destroy(yaml->table);
         break;
-    case TX_YAML_LIST:
+    case T_YAML_LIST:
         g_list_free_full(yaml->list, (GDestroyNotify) t_yaml_free);
         break;
-    case TX_YAML_SCALAR:
+    case T_YAML_SCALAR:
         free(yaml->scalar);
         break;
     }

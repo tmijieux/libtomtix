@@ -1,5 +1,24 @@
-#ifndef TOMTIX_UTIL_H
-#define TOMTIX_UTIL_H
+/*
+  Copyright (C) 2016 Thomas Mijieux
+
+  This file is part of libtomtix.
+
+  libtomtix is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  libtomtix is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef t_UTIL_H
+#define t_UTIL_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -50,7 +69,4 @@ char *t_bytearray2hexstr(uint8_t const *bytearray, size_t size);
 char *t_get_file_hashstr(char const *file_path);
 unsigned t_strsplit_size(char **split);
 
-
-void* t_memdup(void *buf, size_t size);
-    
-#endif // TOMTIX_UTIL_H
+#endif // t_UTIL_H

@@ -1,3 +1,23 @@
+/*
+  Copyright (C) 2016 Thomas Mijieux
+
+  This file is part of libtomtix.
+
+  libtomtix is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  libtomtix is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -10,54 +30,59 @@ typedef enum graph_colour_ {
     WHITE, // never seen
     GREY,  // currently exploring successors
     BLACK,  // finished exploring successors
-    GREEN // another state for 
+    GREEN // another state for
 } graph_colour;
 
-static int graph_is_acyclic_aux(t_graph *G, int state[], int i)
+static bool
+is_acyclic_aux(t_graph *G, int state[], int i)
 {
     unsigned s = t_graph_size(G);
     for (unsigned j = 0; j < s; j++) {
         if (t_graph_has_edge(G, i, j)) {
             if (state[j] == WHITE) {
                 state[j] = GREY;
-                if (!graph_is_acyclic_aux(G, state, j))
-                    return 0;
+                if (!is_acyclic_aux(G, state, j))
+                    return false;
             }
             if (state[j] == GREY)
-                return 0;
+                return true;
         }
     }
     state[i] = BLACK;
-    return 1;
+    return true;
 }
 
-int t_graph_is_acyclic(t_graph *G)
+bool t_graph_is_acyclic(t_graph *G)
 {
     unsigned s = t_graph_size(G);
-	
-    int *state = malloc(sizeof(int) * s);
+    int *state = g_malloc(sizeof*state * s);
+
     for (unsigned i = 0; i < s; i ++)
         state[i] = WHITE;
 
     for (unsigned i = 0; i < s; i++) {
         if (state[i] == WHITE) {
             state[i] = GREY;
-            if (!graph_is_acyclic_aux(G, state, i))
-                return 0;
+            if (!is_acyclic_aux(G, state, i)) {
+                g_free(state);
+                return false;
+            }
             state[i] = BLACK;
-        }	
+        }
     }
-    return 1;
+    g_free(state);
+    return true;
 }
 
-t_graph *transposed_graph(t_graph *G)
+t_graph *t_transposed_graph(t_graph *G)
 {
     t_graph *H = t_graph_copy(G);
     t_graph_transpose(H);
     return H;
 }
 
-void get_black_vertex_stack(size_t n, int colour[], t_stack *bvs)
+static void
+get_black_vertex_stack(size_t n, int colour[], t_stack *bvs)
 {
     for (unsigned i = 0; i < n; i++) {
         if (colour[i] == BLACK) {
@@ -66,8 +91,8 @@ void get_black_vertex_stack(size_t n, int colour[], t_stack *bvs)
     }
 }
 
-static void partition_stack_union(t_partition *part,
-				  t_stack *st)
+static void
+partition_stack_union(t_partition *part, t_stack *st)
 {
     int i = (intptr_t) t_stack_pop(st);
     while (t_stack_size(st) > 0) {
@@ -76,7 +101,8 @@ static void partition_stack_union(t_partition *part,
     }
 }
 
-static void switch_black_green(size_t n, int colour[])
+static void
+switch_black_green(size_t n, int colour[])
 {
     for (unsigned i = 0; i < n; i++) {
         if (colour[i] == BLACK)
@@ -84,7 +110,8 @@ static void switch_black_green(size_t n, int colour[])
     }
 }
 
-static void set_tab_value(size_t n, void *tab_, char value)
+static void
+set_tab_value(size_t n, void *tab_, char value)
 {
     char *tab = tab_;
     for (unsigned i = 0; i < n; i++) {
@@ -92,7 +119,8 @@ static void set_tab_value(size_t n, void *tab_, char value)
     }
 }
 
-static void graph_dfs_aux(t_graph *G, int i, int colour[])
+static void
+dfs_aux(t_graph *G, int i, int colour[])
 {
     if (colour[i] != WHITE)
         return;
@@ -103,7 +131,7 @@ static void graph_dfs_aux(t_graph *G, int i, int colour[])
           t_graph_next(G, &it)    )
     {
         int j = t_graph_value(G, &it);
-        graph_dfs_aux(G, j, colour);
+        dfs_aux(G, j, colour);
     }
     colour[i] = BLACK;
 }
@@ -118,7 +146,7 @@ t_partition *graph_compute_strongly_connected_component(t_graph *G)
     set_tab_value(n, colour, WHITE);
     for (unsigned i = 0; i < n; i++) {
         if (colour[i] == WHITE) {
-            graph_dfs_aux(G, i, colour);
+            dfs_aux(G, i, colour);
             t_stack_push(st, (void*)(intptr_t)i);
         }
     }
@@ -128,7 +156,7 @@ t_partition *graph_compute_strongly_connected_component(t_graph *G)
     set_tab_value(n, colour, WHITE);
     while (t_stack_size(st) > 0) {
         int i = (intptr_t)t_stack_pop(st);
-        graph_dfs_aux(G, i, colour);
+        dfs_aux(G, i, colour);
         get_black_vertex_stack(n, colour, bvs);
         partition_stack_union(part, bvs);
         switch_black_green(n, colour);

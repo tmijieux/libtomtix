@@ -1,3 +1,22 @@
+/*
+  Copyright (C) 2016 Thomas Mijieux
+
+  This file is part of libtomtix.
+
+  libtomtix is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  libtomtix is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <glib.h>
@@ -79,7 +98,7 @@ static void
 list_graph_delete(t_graph *G_)
 {
     list_graph *G = (list_graph*) G_;
-    
+
     for (unsigned i = 0; i < G->vertex_count; ++i)
         g_list_free(G->edges[i]);
     g_free(G);
@@ -96,7 +115,7 @@ static void
 list_graph_add_edge(t_graph *G_ , int v_src, int v_dst)
 {
     list_graph *G = (list_graph*) G_;
-    
+
     if (!list_graph_has_edge(G_, v_src, v_dst)) {
         G->edges[v_src] = g_list_insert_sorted(
             G->edges[v_src], (void*)(intptr_t)v_dst, compare_int);
@@ -131,7 +150,7 @@ list_graph_copy(t_graph const *G_)
 {
     list_graph *G = (list_graph*) G_;
     t_graph *H;
-    
+
     H = t_list_graph_new(G->vertex_count, G->oriented);
     do_copy((list_graph*) H, G);
     return H;
@@ -141,7 +160,7 @@ static void
 list_graph_transpose(t_graph *G_)
 {
     list_graph *G = (list_graph*) G_;
-    
+
     if (!list_graph_is_oriented(G_))
         return;
 
@@ -165,7 +184,7 @@ list_graph_transpose(t_graph *G_)
 
 
 static t_graph_interface list_graph_interface = {
-    
+
     .copy = list_graph_copy,
     .transpose = list_graph_transpose,
     .delete = list_graph_delete,

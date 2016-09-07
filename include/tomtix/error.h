@@ -1,3 +1,22 @@
+/*
+  Copyright (C) 2016 Thomas Mijieux
+
+  This file is part of libtomtix.
+
+  libtomtix is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  libtomtix is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef t_ERROR_H
 #define t_ERROR_H
 
@@ -40,14 +59,14 @@ const char *t_errmsg(int errcode);
 #define __FILENAME__ (strrchr(__FILE__, '/') ?                  \
                       strrchr(__FILE__, '/') + 1 : __FILE__)
 
-#define t_error(format, ...)                               \
+#define t_error(format, ...)                                    \
     do {                                                        \
         fprintf(stderr, "ERROR: %s: %d|%s: ",  __FILENAME__ ,   \
                 __LINE__, __PRETTY_FUNCTION__);                 \
         fprintf(stderr, format, ##__VA_ARGS__);                 \
     } while(0)
 
-#define t_warning(format, ...)                             \
+#define t_warning(format, ...)                                  \
     do {                                                        \
         fprintf(stderr, "WARNING: %s: %d|%s: ",  __FILENAME__ , \
                 __LINE__, __PRETTY_FUNCTION__);                 \
@@ -60,7 +79,7 @@ const char *t_errmsg(int errcode);
 
 
 #ifdef DEBUG
-#define t_debug(format, ...)                               \
+#define t_debug(format, ...)                                    \
     fprintf(stderr, "DEBUG: %s:%d|%s: " format, __FILENAME__ ,  \
             __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);
 #else // DEBUG

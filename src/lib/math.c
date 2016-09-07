@@ -1,3 +1,22 @@
+/*
+  Copyright (C) 2016 Thomas Mijieux
+
+  This file is part of libtomtix.
+
+  libtomtix is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  libtomtix is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,19 +28,6 @@ void t_vec3_normalize(vec3 *v)
 {
     double n = sqrt(v->x*v->x+v->y*v->y+v->z*v->z);
     v->x /= n;  v->y /= n;  v->z /= n;
-}
-
-#undef deg2rad
-#undef rad2deg
-
-double t_deg2rad(double deg)
-{
-    return M_PI * deg / 180.;
-}
-
-double t_rad2deg(double radian)
-{
-    return radian * 180. / M_PI;
 }
 
 void t_matrix_scale(float *i, vec3 s)
@@ -78,8 +84,8 @@ void t_matrix_translation(float *M, vec3 t)
 
 void
 t_matrix_fov_projection(float res[],
-                             float fov, float aspect,
-                             float near, float far)
+                        float fov, float aspect,
+                        float near, float far)
 {
     float depth = near-far;
     float invDepth = 1 / depth;
@@ -93,9 +99,9 @@ t_matrix_fov_projection(float res[],
 }
 
 void t_matrix_ortho(float M[],
-                         float l/*left*/, float r/*right*/,
-                         float b/*bottom*/, float t/*top*/,
-                         float n/*near*/, float f/*far*/)
+                    float l/*left*/, float r/*right*/,
+                    float b/*bottom*/, float t/*top*/,
+                    float n/*near*/, float f/*far*/)
 {
     M[0] = 2./(r-l); M[4] = 0.;       M[8]  = 0.;       M[12] = -(r+l)/(r-l);
     M[1] = 0.;       M[5] = 2./(t-b); M[9]  = 0.;       M[13] = -(t+b)/(t-b);

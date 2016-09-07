@@ -19,11 +19,11 @@ static void do_task(tomtix_tree *node)
 int main()
 {
     tomtix_token tok[5] = {
-        { .type = TX_TOKEN_OPENING_PAREN },
-        { .type = TX_TOKEN_INTEGER, .l = 137 },
-        { .type = TX_TOKEN_OPERATOR, .c = '+' },
-        { .type = TX_TOKEN_INTEGER, .l = 215 },
-        { .type = TX_TOKEN_CLOSING_PAREN }
+        { .type = T_TOKEN_OPENING_PAREN },
+        { .type = T_TOKEN_INTEGER, .l = 137 },
+        { .type = T_TOKEN_OPERATOR, .c = '+' },
+        { .type = T_TOKEN_INTEGER, .l = 215 },
+        { .type = T_TOKEN_CLOSING_PAREN }
     };	
     tomtix_tree *T = tomtix_expr2tree(5, tok);
     GQueue *q = g_queue_new();

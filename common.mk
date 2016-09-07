@@ -7,4 +7,4 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/include
 
 AM_LDFLAGS = \
-	-no-undefined
+	-Wl,--no-undefined
